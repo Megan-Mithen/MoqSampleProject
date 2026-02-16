@@ -7,9 +7,9 @@ namespace MoqExample.Tests;
 
 public class UserServiceTests
 {
-    // ========================================
+    // =========================================
     // Test Setup - create mocks and inject them
-    // ========================================
+    // =========================================
     private readonly Mock<IUserRepository> _mockUserRepository;
     private readonly Mock<IEmailService> _mockEmailService;
     private readonly UserService _userService;
@@ -77,10 +77,10 @@ public class UserServiceTests
         Assert.Equal(2, result.Count);
         Assert.All(result, u => Assert.True(u.IsActive));
     }
-
-    // ========================================
+    
+    // ============================================
     // Verify and Times - check methods were called
-    // ========================================
+    // ============================================
     [Fact]
     public void CreateUser_WhenUserDoesNotExist_AddsUserAndSendsEmail()
     {
@@ -95,16 +95,16 @@ public class UserServiceTests
 
         // Assert
         Assert.True(result);
-        _mockUserRepository.Verify(r => r.Add(newUser), Times.Once);  // <-- called exactly once
+        _mockUserRepository.Verify(r => r.Add(newUser), Times.Once);  // Verify that Add(newUser) was called exactly once.
         _mockEmailService.Verify(e => e.SendEmail(
             "jane@example.com",
             "Welcome!",
-            It.Is<string>(s => s.Contains("Jane"))), Times.Once);  // <-- It.Is with predicate
+            It.Is<string>(s => s.Contains("Jane"))), Times.Once);  // Verify that SendEmail was called exactly once, and includes expected strings.
     }
 
-    // ========================================
+    // ==========================================
     // Times.Never - verify method was NOT called
-    // ========================================
+    // ==========================================
     [Fact]
     public void CreateUser_WhenUserAlreadyExists_ReturnsFalseAndDoesNotSendEmail()
     {
@@ -118,7 +118,7 @@ public class UserServiceTests
         // Assert
         Assert.False(result);
         _mockUserRepository.Verify(r => r.Add(It.IsAny<User>()), Times.Never);  // <-- never called
-        _mockEmailService.Verify(e => e.SendEmail(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _mockEmailService.Verify(e => e.SendEmail(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never); // <-- never called
     }
 
     // ========================================
@@ -137,7 +137,7 @@ public class UserServiceTests
         // Assert
         Assert.True(result);
         Assert.False(user.IsActive);
-        _mockUserRepository.Verify(r => r.Update(It.Is<User>(u => u.Id == 1 && !u.IsActive)), Times.Once);  // <-- predicate
+        _mockUserRepository.Verify(r => r.Update(It.Is<User>(u => u.Id == 1 && !u.IsActive)), Times.Once);  // <-- predicate -- Verify that Update was called with a User where the Id is 1 and IsActive is false
     }
 
     [Fact]
@@ -206,9 +206,9 @@ public class UserServiceTests
         Assert.Equal("SMTP server unavailable", ex.Message);
     }
 
-    // ========================================
+    // ===========================================================
     // Callback - run code when mock is called / capture arguments
-    // ========================================
+    // ===========================================================
     [Fact]
     public void CreateUser_Callback_CapturesEmailArguments()
     {
@@ -240,9 +240,9 @@ public class UserServiceTests
         Assert.Contains("Jane", capturedBody);
     }
 
-    // ========================================
+    // ====================================================
     // SetupSequence - return different values on each call
-    // ========================================
+    // ====================================================
     [Fact]
     public void GetUserRetryCount_SetupSequence_SimulatesRetry()
     {
@@ -260,9 +260,9 @@ public class UserServiceTests
         Assert.Equal(3, attempts);
     }
 
-    // ========================================
+    // ==============================================
     // MockBehavior.Strict - fail on unexpected calls
-    // ========================================
+    // ==============================================
     [Fact]
     public void StrictMock_ThrowsOnUnexpectedCall()
     {
@@ -272,6 +272,7 @@ public class UserServiceTests
         var service = new UserService(strictMock.Object, emailMock.Object);
 
         // No setup for GetById - strict mock will throw
+        // Test confirms that calling GetUser without setting up the repository will fail — which proves GetUser  depends on GetById.
 
         // Act & Assert
         Assert.Throws<Moq.MockException>(() => service.GetUser(1));
@@ -294,9 +295,9 @@ public class UserServiceTests
         Assert.Equal("John", result.Name);
     }
 
-    // ========================================
+    // ============================================
     // Verifiable - mark setups that must be called
-    // ========================================
+    // ============================================
     [Fact]
     public void Verifiable_EnsuresSetupWasCalled()
     {
